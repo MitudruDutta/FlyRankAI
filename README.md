@@ -15,6 +15,9 @@ Repository containing weekly assignments, exploratory data analysis, machine lea
 - [`Week 2/`](./Week%202/): Machine Learning Task Formulation and Loop Mapping:
   - [`Week 2/work/notebooks/w02_ml_task_framing.ipynb`](./Week%202/work/notebooks/w02_ml_task_framing.ipynb): Comprehensive task mapping for the Refresh Opportunity Scoring lane (Task type: Ranking/Scoring, Target: Observed performance decay, Metric: Precision@50, Unit of analysis: Page $\times$ 90d window, and empirical proof of why ML beats static heuristics).
 
+- [`Week 3/`](./Week%203/): Search Intelligence Data Contract (ML-04):
+  - [`Week 3/work/notebooks/w03_data_contract.ipynb`](./Week%203/work/notebooks/w03_data_contract.ipynb): 5 plain-words contract answers, 3 DuckDB verification queries (Grain, Counts/Span, Availability via `IS TRUE`), 5 core features with decision-moment availability rationales, deliberate leakage trap experiment (jumping to 1.000 and restored to 0.720), and named data limitations.
+
 ## Setup & Environment
 
 Python 3.12 environment:

@@ -1,0 +1,9 @@
+{
+  "random_split_roc": 0.708207365087785,
+  "grouped_split_roc": 0.6264163026233247,
+  "memorization_gap_roc": 0.08179106246446033,
+  "grouped_precision_at_20": 0.95,
+  "grouped_precision_at_50": 0.9,
+  "leaky_model_roc": 1.0,
+  "leak_detected_and_asserted": true
+}

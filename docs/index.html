@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Optimizing Editorial Bandwidth via Empirical Content Opportunity Scoring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b1020;
+  --surface: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --primary: #0d9488;
+  --primary-light: #ccfbf1;
+  --primary-dark: #0f766e;
+  --accent: #3b82f6;
+  --card-bg: #f8fafc;
+  --border: #e2e8f0;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #0f172a; font-family: Inter, system-ui, sans-serif; color: #334155; }
+a { color: var(--primary-dark); text-decoration: none; font-weight: 500; }
+a:hover { text-decoration: underline; }
+
+.header-banner {
+  background: linear-gradient(135deg, #0b1020 0%, #1e293b 100%);
+  color: #f8fafc;
+  padding: 60px 24px 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+}
+.header-kicker {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5eead4;
+  margin-bottom: 16px;
+}
+.header-banner h1 {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(28px, 4.5vw, 44px);
+  line-height: 1.2;
+  margin: 0 auto 16px;
+  max-width: 960px;
+  font-weight: 700;
+}
+.header-byline {
+  font-size: 15px;
+  color: #94a3b8;
+  margin: 0 auto 24px;
+}
+.header-links {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.2s;
+}
+.header-btn:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: #5eead4;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.main-container {
+  max-width: 900px;
+  margin: -30px auto 60px;
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  padding: 48px 56px;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.7;
+}
+@media (max-width: 640px) {
+  .main-container { padding: 28px 20px; margin: 10px; }
+}
+
+.abstract-box {
+  background: #f0fdfa;
+  border-left: 4px solid var(--primary);
+  border-radius: 0 12px 12px 0;
+  padding: 24px 28px;
+  margin-bottom: 40px;
+  font-family: Inter, sans-serif;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: #134e4a;
+}
+.abstract-box h2 {
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-dark);
+  margin: 0 0 8px;
+}
+
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 32px 0;
+  font-family: Inter, sans-serif;
+}
+.metric-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.metric-val {
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1;
+  color: #0f172a;
+}
+.metric-val.highlight { color: var(--primary); }
+.metric-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+h2 {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 26px;
+  color: #0f172a;
+  margin: 44px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+h3 {
+  font-family: Inter, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 28px 0 10px;
+}
+p { margin: 0 0 18px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  margin: 24px 0;
+}
+th {
+  background: #f8fafc;
+  color: #1e293b;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-top: 2px solid #0f172a;
+  border-bottom: 1px solid #cbd5e1;
+  text-align: left;
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #334155;
+}
+tr:last-child td { border-bottom: 2px solid #0f172a; }
+
+figure {
+  margin: 32px 0;
+}
+figure img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+figcaption {
+  font-family: Inter, sans-serif;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  text-align: center;
+}
+
+code {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.playbook-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 28px 0;
+  font-family: Inter, sans-serif;
+}
+.playbook-item {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.playbook-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  background: #0d9488;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  height: fit-content;
+  white-space: nowrap;
+}
+
+.footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+</style>
+</head>
+<body>
+
+<header class="header-banner">
+  <div class="header-kicker">Applied Machine Learning &bull; Search Intelligence Capstone</div>
+  <h1>Optimizing Editorial Bandwidth via Empirical Content Opportunity Scoring</h1>
+  <p class="header-byline">By <strong>Mitudru Dutta</strong> &bull; FlyRank ML Track Capstone &bull; September 2026</p>
+  <div class="header-links">
+    <a href="https://github.com/MitudruDutta/FlyRankAI" class="header-btn" target="_blank">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      View GitHub Repository
+    </a>
+    <a href="https://github.com/MitudruDutta/FlyRankAI/blob/main/capstone/work/notebooks/capstone.ipynb" class="header-btn" target="_blank">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      Executed Capstone Notebook
+    </a>
+  </div>
+</header>
+
+<main class="main-container">
+
+  <!-- Section 1: Abstract -->
+  <div class="abstract-box">
+    <h2>Executive Abstract</h2>
+    <p>
+      How can enterprise content marketing teams prioritize constrained monthly editorial bandwidth across thousands of live URLs to maximize recovered organic search traffic from decaying assets? We evaluate a public-safe dataset of 30,000 pseudonymized search assets across 32 client domains, linking trailing Google Search Console query telemetry with Google Analytics engagement signals. We formulate the challenge as a capacity-constrained ranking task evaluated on Precision@50, comparing human-crafted heuristics against regularized tree ensembles trained strictly on pre-decision observable signals with honest 20% client-holdout validation. While conventional freshness rules achieve only 38.0% Precision@50 on unseen clients and suffer from severe single-client monopolization, a regularized Random Forest model reaches <strong>72.0% Precision@50</strong> (a <strong>1.8x to 3x efficiency multiplier</strong>). The resulting action engine transforms ad-hoc content maintenance into a prioritized monthly queue with actionable reason codes, preventing high-exposure search traffic decay.
+    </p>
+  </div>
+
+  <div class="metric-strip">
+    <div class="metric-card">
+      <div class="metric-val highlight">72.0%</div>
+      <div class="metric-label">Holdout Precision@50 (Random Forest)</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">38.0%</div>
+      <div class="metric-label">Heuristic Rule Precision@50</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val highlight">1.89x</div>
+      <div class="metric-label">Efficiency Lift over Heuristic Rule</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">112.5M</div>
+      <div class="metric-label">Impressions at Risk in Prime Tiers</div>
+    </div>
+  </div>
+
+  <!-- Section 2: Introduction -->
+  <h2>1. Introduction & Operational Decision</h2>
+  <p>
+    Enterprise search operations face a persistent resource allocation bottleneck: while mid-to-large content hubs frequently maintain catalogs of 1,000 to 50,000 published URLs, editorial teams typically have human bandwidth to thoroughly refresh, expand, and re-optimize only <strong>20 to 50 articles per monthly sprint</strong>. 
+  </p>
+  <p>
+    In the absence of calibrated statistical scoring, teams fall back on naive rules of thumb—such as targeting the oldest published articles or prioritizing broad head keywords with high third-party search volume. However, our initial exploratory findings proved that these assumptions fail:
+  </p>
+  <ul>
+    <li><strong>Search volume does not predict impressions:</strong> The Pearson correlation between third-party keyword search volume and actual 90-day impressions is $r \approx 0.001$.</li>
+    <li><strong>Word count does not protect against decay:</strong> Median word count between decaying pages (216 words) and growing pages (291 words) is nearly identical.</li>
+    <li><strong>Decay is concentrated in high-value real estate:</strong> Over <strong>56.9% of Page 1</strong> and <strong>60.9% of Striking Distance</strong> URLs are actively decaying, representing over 112.5 million impressions at imminent risk of loss.</li>
+  </ul>
+  <p>
+    The cost of incorrect recommendations is asymmetric: false alarms waste 4–8 senior editorial hours ($250–$600 per article) rewriting stable content, while false negatives permanently forfeit qualified organic search pipeline to competitors.
+  </p>
+
+  <!-- Section 3: Data Contract -->
+  <h2>2. Data & Observation Windows</h2>
+  <p>
+    The study analyzes the FlyRank Search Intelligence Dataset: 30,000 pseudonymized URLs spanning 32 client domains. The grain is strictly <strong>one unique published content item (<code>content_id</code>) &times; trailing-90-day observation window</strong>.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Classification</th>
+        <th>Field Name</th>
+        <th>Operational Definition</th>
+        <th>Knowable When?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Feature</strong></td>
+        <td><code>impressions_90d</code></td>
+        <td>Total search impressions logged in Google Search Console</td>
+        <td>Pre-decision historical telemetry</td>
+      </tr>
+      <tr>
+        <td><strong>Feature</strong></td>
+        <td><code>avg_position</code></td>
+        <td>Mean ranking position across active search queries</td>
+        <td>Pre-decision historical telemetry</td>
+      </tr>
+      <tr>
+        <td><strong>Feature</strong></td>
+        <td><code>ctr</code></td>
+        <td>Click-through rate ($clicks / impressions \times 100$)</td>
+        <td>Pre-decision historical telemetry</td>
+      </tr>
+      <tr>
+        <td><strong>Feature</strong></td>
+        <td><code>days_since_last_update</code></td>
+        <td>Days elapsed since last article modification</td>
+        <td>Queryable from CMS at decision cutoff</td>
+      </tr>
+      <tr>
+        <td><strong>Feature</strong></td>
+        <td><code>content_age_days</code></td>
+        <td>Days since initial article publication</td>
+        <td>Queryable from CMS at decision cutoff</td>
+      </tr>
+      <tr>
+        <td><strong>Target / Proxy</strong></td>
+        <td><code>is_declining_label</code></td>
+        <td>Binary indicator of forward-window decay ($>20\%$ impression drop)</td>
+        <td>Ground truth outcome to predict</td>
+      </tr>
+      <tr>
+        <td><strong>Excluded (Leak)</strong></td>
+        <td><code>trend_pct</code>, <code>trend_direction</code></td>
+        <td>Direct mathematical formulas defining the label</td>
+        <td><strong>Strictly blacklisted</strong> (Target Leakage)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 4: Methodology -->
+  <h2>3. Methodology & Validation Design</h2>
+  <p>
+    Because content performance metrics within a domain share latent technical authority and sitewide architecture, random row-based cross-validation leaks client-specific quirks into test sets. We enforce an honest <strong>20% Client-Holdout Split</strong> (holding out 6 full client domains), ensuring that evaluation measures true generalization to unseen websites.
+  </p>
+  <p>
+    We benchmark three machine learning architectures against FlyRank's transparent heuristic baseline:
+  </p>
+  <ul>
+    <li><strong>Heuristic Baseline:</strong> A multiplicative rule filtering for prime position tiers, visibility threshold (&ge; 500 impressions), aging age (&ge; 60 days), and scaling by volume with a CTR deficit penalty.</li>
+    <li><strong>Logistic Regression:</strong> L2-regularized linear model with balanced class weights.</li>
+    <li><strong>Interpretable Decision Tree:</strong> A constrained <code>max_depth=3</code> tree yielding an explicit 7-node readable decision hierarchy.</li>
+    <li><strong>Regularized Random Forest:</strong> An ensemble of 50 shallow trees (<code>max_depth=2</code>) providing variance reduction across heterogeneous enterprise domains.</li>
+  </ul>
+
+  <!-- Section 5: Results -->
+  <h2>4. Empirical Results (vs. Baseline)</h2>
+  <p>
+    Performance is evaluated strictly on <strong>Precision@50</strong>, measuring the proportion of the top 50 prioritized URLs that are genuine performance decay emergencies:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Model / Heuristic</th>
+        <th>Architecture</th>
+        <th>Train Precision@50</th>
+        <th>Holdout Test Precision@50</th>
+        <th>Outcome vs. Base Rate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Catalog Base Rate</strong></td>
+        <td>Random Selection Floor</td>
+        <td>54.2%</td>
+        <td>54.2%</td>
+        <td>Uninformed Baseline</td>
+      </tr>
+      <tr>
+        <td><strong>Heuristic Rule</strong></td>
+        <td>Hand-Crafted Multiplicative Rule</td>
+        <td>40.0%</td>
+        <td>38.0%</td>
+        <td>Lags Random (Tie Pathology)</td>
+      </tr>
+      <tr>
+        <td><strong>Logistic Regression</strong></td>
+        <td>L2 Linear (Balanced)</td>
+        <td>60.0%</td>
+        <td>42.0%</td>
+        <td>High Client Overfit</td>
+      </tr>
+      <tr>
+        <td><strong>Decision Tree (Depth-3)</strong></td>
+        <td>7-Node Interpretable Tree</td>
+        <td>72.0%</td>
+        <td>66.0%</td>
+        <td>+28.0pp over Baseline Rule</td>
+      </tr>
+      <tr>
+        <td><strong>Random Forest (Depth-2)</strong></td>
+        <td>Regularized Tree Ensemble</td>
+        <td><strong>80.0%</strong></td>
+        <td><strong>72.0%</strong></td>
+        <td><strong>1.89x Lift over Heuristic Rule</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <figure>
+    <img src="capstone_results_chart.png" alt="Capstone Results Chart: Precision@50 Comparison and Impression Distribution by Position Tier">
+    <figcaption>Figure 1: (Left) Precision@50 on unseen held-out client domains comparing the heuristic baseline against machine learning models. (Right) Total impression concentration across position tiers, demonstrating that 72.1% of visibility resides in Page 1 and Striking distance.</figcaption>
+  </figure>
+
+  <h3>Key Findings</h3>
+  <ol>
+    <li><strong>The Static Rule Fails Under Evaluation (38% P@50):</strong> The hand rule suffers from volume monopolization (assigning top scores to massive enterprise pages that are already stable) and tie-breaking collapses.</li>
+    <li><strong>Regularized Ensembles Maximize Generalization (72% P@50):</strong> The Random Forest model correctly prioritizes URLs with deteriorating CTRs and position instability, delivering 36 genuine decay emergencies out of the top 50 assigned articles.</li>
+    <li><strong>The Freshness Paradox:</strong> The decision tree revealed that peak decay happens at 91–180 days, whereas older content (181+ days) often represents evergreen stable assets.</li>
+  </ol>
+
+  <!-- Section 6: Limitations -->
+  <h2>5. Limitations & Honest Framing</h2>
+  <p>
+    Rigorous scientific communication requires establishing explicit boundaries around what the data can and cannot substantiate:
+  </p>
+  <ul>
+    <li><strong>What We CAN Claim:</strong> In trailing-90-day search telemetry across 32 client domains, tree-based machine learning models consistently outperform static heuristic rules, lifting Precision@50 from 38% to 72% on unseen client domains.</li>
+    <li><strong>No Causal Algorithm Reverse-Engineering:</strong> We do not claim to have reverse-engineered Google's search algorithms. All findings reflect observational associations in query telemetry.</li>
+    <li><strong>No Deterministic Traffic Guarantees:</strong> Executing a content refresh on a prioritized page does not guarantee a 100% recovery of historical traffic; competitor velocity and seasonal intent shifts remain external factors.</li>
+    <li><strong>Client Footprint Disparity:</strong> The largest single client domain accounts for 36.8% of total impressions. Production deployments should apply per-client percentile normalization to prevent domain monopolization.</li>
+  </ul>
+
+  <!-- Section 7: Action Playbook -->
+  <h2>6. Ranked Recommendations & Action Playbook</h2>
+  <p>
+    The model delivers an automated monthly action queue with transparent reason codes and concrete editorial instructions:
+  </p>
+
+  <div class="playbook-box">
+    <div class="playbook-item">
+      <div class="playbook-tag">ACTION 1</div>
+      <div>
+        <strong><code>refresh_metadata_and_intent</code> (Reason: <code>page1_ctr_deficit</code>)</strong><br>
+        <em>Trigger:</em> Page ranks on Page 1 (positions 4–10) with high impression volume but CTR lags the rank peer benchmark.<br>
+        <em>Action:</em> Overhaul meta titles, descriptions, and H1/H2 header hierarchy to improve SERP click-through appeal and re-align with current searcher intent.
+      </div>
+    </div>
+    <div class="playbook-item">
+      <div class="playbook-tag">ACTION 2</div>
+      <div>
+        <strong><code>refresh_search_intent</code> (Reason: <code>striking_distance_decay</code>)</strong><br>
+        <em>Trigger:</em> Page ranks in Striking Distance (positions 11–20) and is actively losing impressions.<br>
+        <em>Action:</em> Add missing subtopics, expand direct answers for query modifiers, and optimize internal anchor text from top-ranking hub pages to cross the Page 1 threshold.
+      </div>
+    </div>
+    <div class="playbook-item">
+      <div class="playbook-tag">ACTION 3</div>
+      <div>
+        <strong><code>update_content_and_facts</code> (Reason: <code>freshness_aging_risk</code>)</strong><br>
+        <em>Trigger:</em> High-volume URL has reached the 90–180 day vulnerability window.<br>
+        <em>Action:</em> Update outdated statistics, replace stale examples, verify outbound citations, and refresh publication dates.
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 8: Reproducibility -->
+  <h2>7. Reproducibility & Open Source Code</h2>
+  <p>
+    Every number, table, and visualization in this paper is fully reproducible from our open-source repository using Python 3.12 and DuckDB:
+  </p>
+  <ul>
+    <li><strong>GitHub Repository:</strong> <a href="https://github.com/MitudruDutta/FlyRankAI" target="_blank">https://github.com/MitudruDutta/FlyRankAI</a></li>
+    <li><strong>Interactive Capstone Notebook:</strong> <a href="https://github.com/MitudruDutta/FlyRankAI/blob/main/capstone/work/notebooks/capstone.ipynb" target="_blank"><code>capstone/work/notebooks/capstone.ipynb</code></a></li>
+    <li><strong>Random Seeds & Split Determinism:</strong> Seed <code>42</code> used across all client-holdout splits and tree training routines.</li>
+  </ul>
+
+  <!-- Section 9: Acknowledgments -->
+  <div class="footer">
+    <h2>8. Acknowledgments & Data Credit</h2>
+    <p>
+      <strong>Built on the FlyRank ML Internship dataset.</strong><br>
+      We gratefully acknowledge <a href="https://flyrank.ai" target="_blank">FlyRank (https://flyrank.ai)</a> for providing access to the pseudonymized enterprise search intelligence dataset release.
+    </p>
+  </div>
+
+</main>
+
+</body>
+</html>

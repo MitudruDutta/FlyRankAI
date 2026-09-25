@@ -21,6 +21,10 @@ Repository containing weekly assignments, exploratory data analysis, machine lea
 - [`Week 4/`](./Week%204/): Baseline Action Score and Top-20 Review (ML-07):
   - [`Week 4/work/notebooks/w04_baseline_score.ipynb`](./Week%204/work/notebooks/w04_baseline_score.ipynb): Two signal audits (Freshness Tier: MIXED/OPPOSITE, CTR Deficit: CONFIRMED), transparent rule score with reason codes, ranked queue export, skeptical top-10 review with failure modes, and committed metrics receipts in `work/outputs/baseline_metrics.json`.
 
+- [`Week 5/`](./Week%205/): Modeling Lane (ML-08):
+  - [`Week 5/work/notebooks/w05_model.ipynb`](./Week%205/work/notebooks/w05_model.ipynb): Full modeling comparison on identical client holdout split (7 unseen clients). Baseline Rule vs Logistic Regression vs Decision Tree (depth=3) vs Random Forest (depth=6). Random Forest achieves **90.0% Precision@50 (2.65x lift)** and **95.0% Precision@20**. Includes permutation importance and qualitative error audits of concrete failure cases.
+  - [`Week 5/work/outputs/model_comparison.json`](./Week%205/work/outputs/model_comparison.json): Recorded model comparison metrics.
+
 - [`capstone/`](./capstone/): Final Capstone Project — Decision-Support Refresh Opportunity Scoring:
   - **Deployed Research Paper**: [https://mitudrudutta.github.io/FlyRankAI/](https://mitudrudutta.github.io/FlyRankAI/)
   - [`capstone/work/notebooks/capstone.ipynb`](./capstone/work/notebooks/capstone.ipynb): Executed end-to-end capstone notebook (client-holdout validation, Random Forest vs Baseline 72% vs 38% P@50, Action Playbook, reason codes).

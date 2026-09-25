@@ -1,0 +1,8 @@
+{
+  "catalog_base_rate": 0.5420666666666667,
+  "precision_at_20": 0.6,
+  "precision_at_50": 0.4,
+  "signal_1_freshness_verdict": "MIXED/OPPOSITE",
+  "signal_2_ctr_gap_verdict": "CONFIRMED",
+  "total_scored_rows": 30000
+}

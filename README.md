@@ -18,6 +18,9 @@ Repository containing weekly assignments, exploratory data analysis, machine lea
 - [`Week 3/`](./Week%203/): Search Intelligence Data Contract (ML-04):
   - [`Week 3/work/notebooks/w03_data_contract.ipynb`](./Week%203/work/notebooks/w03_data_contract.ipynb): 5 plain-words contract answers, 3 DuckDB verification queries (Grain, Counts/Span, Availability via `IS TRUE`), 5 core features with decision-moment availability rationales, deliberate leakage trap experiment (jumping to 1.000 and restored to 0.720), and named data limitations.
 
+- [`Week 4/`](./Week%204/): Baseline Action Score and Top-20 Review (ML-07):
+  - [`Week 4/work/notebooks/w04_baseline_score.ipynb`](./Week%204/work/notebooks/w04_baseline_score.ipynb): Two signal audits (Freshness Tier: MIXED/OPPOSITE, CTR Deficit: CONFIRMED), transparent rule score with reason codes, ranked queue export, skeptical top-10 review with failure modes, and committed metrics receipts in `work/outputs/baseline_metrics.json`.
+
 ## Setup & Environment
 
 Python 3.12 environment:

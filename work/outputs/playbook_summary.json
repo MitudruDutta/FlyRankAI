@@ -1,0 +1,16 @@
+{
+  "evaluated_test_rows": 6163,
+  "evaluated_test_clients": 7,
+  "catalog_base_rate": 0.5420666666666667,
+  "test_base_rate": 0.5109524582184002,
+  "precision_at_20": 0.95,
+  "precision_at_50": 0.9,
+  "top50_quick_wins_count": 33,
+  "top50_striking_count": 13,
+  "top50_action_distribution": {
+    "page1_ctr_deficit": 33,
+    "striking_distance_decay": 13,
+    "general_decay_risk": 4
+  },
+  "estimated_total_sprint_hours": 101.5
+}

@@ -29,6 +29,11 @@ Repository containing weekly assignments, exploratory data analysis, machine lea
   - [`Week 6/work/notebooks/w06_validation_audit.ipynb`](./Week%206/work/notebooks/w06_validation_audit.ipynb): Methodological audit of FlyRank's published research paper findings, before/after split comparison demonstrating the domain memorization gap (+0.082 ROC inflation under random split), deliberate leakage confession test (jumping to 1.000), strict feature blacklist assertion, and claim rewrites into defensible decision-support language.
   - [`Week 6/work/outputs/audit_metrics.json`](./Week%206/work/outputs/audit_metrics.json): Recorded validation audit metrics.
 
+- [`Week 7/`](./Week%207/): Content Action Playbook (ML-10):
+  - [`Week 7/work/notebooks/w07_action_playbook.ipynb`](./Week%207/work/notebooks/w07_action_playbook.ipynb): Operational decision-support playbook mapping ML probabilities to human reason codes (`page1_ctr_deficit`, `striking_distance_decay`, `freshness_aging_risk`), operational boundary checks, human review protocols, strict no-go rules (no automated LLM rewriting), monitoring triggers, and multi-panel figures.
+  - [`Week 7/work/figures/playbook_action_distribution.png`](./Week%207/work/figures/playbook_action_distribution.png): Publication visual receipts of action distribution and Precision@K lift curve.
+  - [`Week 7/work/outputs/playbook_summary.json`](./Week%207/work/outputs/playbook_summary.json): Recorded playbook metrics.
+
 - [`capstone/`](./capstone/): Final Capstone Project — Decision-Support Refresh Opportunity Scoring:
   - **Deployed Research Paper**: [https://mitudrudutta.github.io/FlyRankAI/](https://mitudrudutta.github.io/FlyRankAI/)
   - [`capstone/work/notebooks/capstone.ipynb`](./capstone/work/notebooks/capstone.ipynb): Executed end-to-end capstone notebook (client-holdout validation, Random Forest vs Baseline 72% vs 38% P@50, Action Playbook, reason codes).
